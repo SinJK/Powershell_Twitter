@@ -1,4 +1,25 @@
-﻿[string]$login = "login or mail or phone number"
+if(Get-ScheduledTask | Select-Object TaskName | Where-Object {$_.TaskName -eq "twittos"}) {
+
+Write-host "existing"
+
+} else{
+Write-host "not existing"
+Write-Host "Creating the task"
+
+$PSScriptRoot
+
+$action = New-ScheduledTaskAction -Execute  C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Argument "-File $PSScriptRoot\BOT_Twitter.ps1"
+$trigger = New-ScheduledTaskTrigger -At 12:40pm -Daily
+$principal = New-ScheduledTaskPrincipal -UserID $env:USERNAME -LogonType ServiceAccount -RunLevel Highest
+$settings = New-ScheduledTaskSettingsSet -MultipleInstances Parallel
+
+Register-ScheduledTask -TaskName "twittos2" -Action $action -Trigger $trigger -Settings $settings -Principal $principal
+   
+
+}
+
+
+[string]$login = "login or mail or phone number"
 [string]$mdp= "password"
 $html = @"
 
@@ -44,4 +65,6 @@ $applybtn=$ie.Document.DocumentElement.getElementsByClassName("SendTweetsButton 
 
 $applybtn.click()
 
+Start-Sleep(3)
 
+$ie.Quit()
