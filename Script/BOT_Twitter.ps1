@@ -3,17 +3,18 @@ This Script has been created by SinJK
 
 #>
 
+
 $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-
-if($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true){
-
-Write-Host "Admin, OK, continuing"
 
 if(Get-ScheduledTask | Select-Object TaskName | Where-Object {$_.TaskName -eq "twittos"}) {
 
 Write-host "existing"
 
 } else{
+
+if($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true){
+
+Write-Host "Admin, OK, continuing"
 Write-host "not existing"
 Write-Host "Creating the task"
 
@@ -27,8 +28,16 @@ $settings = New-ScheduledTaskSettingsSet -MultipleInstances Parallel
 Register-ScheduledTask -TaskName "twittos" -Action $action -Trigger $trigger -Settings $settings -Principal $principal
    
 
-}
+}else
+{
 
+Write-Host "Please launch script as admin !!!"
+Write-Host "Leaving the script ..."
+
+
+exit
+}
+}
 if(Get-Process -Name iexplore -ErrorAction SilentlyContinue){
 Write-Host "Closing explorer process"
 Stop-Process -Name iexplore -Force
@@ -77,16 +86,7 @@ $connect.click()
 }
 
 
-}
-else
-{
 
-Write-Host "Please launch script as admin !!!"
-Write-Host "Leaving the script ..."
-
-
-exit
-}
 
 
 $tweet=$ie.Document.DocumentElement.getElementsByClassName("js-global-new-tweet js-tooltip EdgeButton EdgeButton--primary js-dynamic-tooltip") | Select-Object -First 1
