@@ -1,3 +1,9 @@
+$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+
+if($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true){
+
+Write-Host "Admin, OK, continuing"
+
 if(Get-ScheduledTask | Select-Object TaskName | Where-Object {$_.TaskName -eq "twittos"}) {
 
 Write-host "existing"
@@ -13,26 +19,40 @@ $trigger = New-ScheduledTaskTrigger -At 12:40pm -Daily
 $principal = New-ScheduledTaskPrincipal -UserID $env:USERNAME -LogonType ServiceAccount -RunLevel Highest
 $settings = New-ScheduledTaskSettingsSet -MultipleInstances Parallel
 
-Register-ScheduledTask -TaskName "twittos2" -Action $action -Trigger $trigger -Settings $settings -Principal $principal
+Register-ScheduledTask -TaskName "twittos" -Action $action -Trigger $trigger -Settings $settings -Principal $principal
    
 
 }
 
+if(Get-Process -Name iexplore -ErrorAction SilentlyContinue){
+Write-Host "Closing explorer process"
+Stop-Process -Name iexplore -Force
+}
+else{
+Write-Host "No explorer detected"
+Write-Host "Continuing"
+}
 
-[string]$login = "login or mail or phone number"
+
+[string]$login = "login or email"
 [string]$mdp= "password"
 $html = @"
-
-Content of your tweet
+Content of your tweetssssss
 
 "@
 $ie = new-object -com "InternetExplorer.Application"
-$ie.navigate("https://twitter.com/login?lang=en")
-$ie.visible = $false
-sleep 5
+$ie.navigate("https://twitter.com/login")
+$ie.visible = $true
 
-while($ie.ReadyState -ne 4) {start-sleep -m 100}     
+while ($ie.busy) {sleep -milliseconds 50}
+$iex = $ie.Document.DocumentElement.getElementsByTagName("button") | Where-Object {$_.classname -eq 'submit EdgeButton EdgeButton--primary EdgeButtom--medium'}
+if($iex.ToString() -eq [String]::Empty){
 
+Write-host "deja connecté"
+} else{
+
+
+Write-host "connexion en cours"
 $log = $ie.document.DocumentElement.getElementsByTagName("input") | Where-Object {$_.name -eq 'session[username_or_email]'}
 $pw = $ie.document.DocumentElement.getElementsByTagName("input") | Where-Object {$_.name -eq 'session[password]'}
 Foreach($element in $log)
@@ -48,9 +68,25 @@ $connect=$ie.Document.DocumentElement.getElementsByClassName("submit EdgeButton 
 
 $connect.click()
 
+
+}
+
+
+}
+else
+{
+
+Write-Host "Please launch script as admin !!!"
+Write-Host "Leaving the script ..."
+
+
+exit
+}
+
+
 $tweet=$ie.Document.DocumentElement.getElementsByClassName("js-global-new-tweet js-tooltip EdgeButton EdgeButton--primary js-dynamic-tooltip") | Select-Object -First 1
 $tweet.click()
-Start-Sleep(5)
+
 
 $text=$ie.Document.DocumentElement.getElementsByTagName("div") | Where-Object {$_.classname -eq 'tweet-box rich-editor is-showPlaceholder'}
 $txt2= $text.Document.DocumentElement.getElementsByTagName("p")
@@ -68,3 +104,4 @@ $applybtn.click()
 Start-Sleep(3)
 
 $ie.Quit()
+
