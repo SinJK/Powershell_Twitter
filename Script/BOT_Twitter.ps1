@@ -23,9 +23,9 @@ else
             Write-Host "Creating the task"
 
             $PSScriptRoot
-
+            $hour = Read-Host "Enter the hour to schedule the script every day (ex: 8:00am)"
             $action = New-ScheduledTaskAction -Execute  C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Argument "-File $PSScriptRoot\BOT_Twitter.ps1"
-            $trigger = New-ScheduledTaskTrigger -At 12:40pm -Daily
+            $trigger = New-ScheduledTaskTrigger -At $hour -Daily
             $principal = New-ScheduledTaskPrincipal -UserID $env:USERNAME -LogonType ServiceAccount -RunLevel Highest
             $settings = New-ScheduledTaskSettingsSet -MultipleInstances Parallel
 
@@ -72,7 +72,13 @@ Write-host "deja connecté"
 
 Write-host "connexion en cours"
 $login = Read-Host "Enter a password for user account"
-$SecurePassword = Read-Host "Enter a password for user account" -AsSecureString            
+while($login -eq ""){
+$login = Read-Host "Enter a your login"
+}
+$SecurePassword = Read-Host "Enter your password" -AsSecureString
+while($SecurePassword -eq ""){
+$SecurePassword = Read-Host "Enter your password" -AsSecureString
+}            
 $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecurePassword)            
 $PlainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 
