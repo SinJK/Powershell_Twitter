@@ -6,24 +6,28 @@ This Script has been created by SinJK
 
 $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 
-if(Get-ScheduledTask | Select-Object TaskName | Where-Object {$_.TaskName -eq "twittos"}) {
+if(Get-ScheduledTask | Select-Object TaskName | Where-Object {$_.TaskName -eq "twittos"}) 
+{
 
-Write-host "existing"
+    Write-host "existing"
 
-} else{
+} 
 
-if($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true){
+else
+{
 
-Write-Host "Admin, OK, continuing"
-Write-host "not existing"
-Write-Host "Creating the task"
+    if($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -eq $true){
 
-$PSScriptRoot
+            Write-Host "Admin, OK, continuing"
+            Write-host "not existing"
+            Write-Host "Creating the task"
 
-$action = New-ScheduledTaskAction -Execute  C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Argument "-File $PSScriptRoot\BOT_Twitter.ps1"
-$trigger = New-ScheduledTaskTrigger -At 12:40pm -Daily
-$principal = New-ScheduledTaskPrincipal -UserID $env:USERNAME -LogonType ServiceAccount -RunLevel Highest
-$settings = New-ScheduledTaskSettingsSet -MultipleInstances Parallel
+            $PSScriptRoot
+
+            $action = New-ScheduledTaskAction -Execute  C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Argument "-File $PSScriptRoot\BOT_Twitter.ps1"
+            $trigger = New-ScheduledTaskTrigger -At 12:40pm -Daily
+            $principal = New-ScheduledTaskPrincipal -UserID $env:USERNAME -LogonType ServiceAccount -RunLevel Highest
+            $settings = New-ScheduledTaskSettingsSet -MultipleInstances Parallel
 
 Register-ScheduledTask -TaskName "twittos" -Action $action -Trigger $trigger -Settings $settings -Principal $principal
    
@@ -67,6 +71,13 @@ Write-host "deja connecté"
 
 
 Write-host "connexion en cours"
+$login = Read-Host "Enter a password for user account"
+$SecurePassword = Read-Host "Enter a password for user account" -AsSecureString            
+$BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecurePassword)            
+$PlainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+
+
+Start-Sleep(2)
 $log = $ie.document.DocumentElement.getElementsByTagName("input") | Where-Object {$_.name -eq 'session[username_or_email]'}
 $pw = $ie.document.DocumentElement.getElementsByTagName("input") | Where-Object {$_.name -eq 'session[password]'}
 Foreach($element in $log)
@@ -75,19 +86,19 @@ Foreach($element in $log)
     } 
 Foreach($element in $pw)
     {
-        $element.value = $mdp
+        $element.value = $PlainPassword
     } 
 
 $connect=$ie.Document.DocumentElement.getElementsByClassName("submit EdgeButton EdgeButton--primary EdgeButtom--medium") | Select-Object -First 1
 
 $connect.click()
-
+$PlainPassword = ""
 
 }
 
 
 
-
+while ($ie.busy) {sleep -milliseconds 50}
 
 $tweet=$ie.Document.DocumentElement.getElementsByClassName("js-global-new-tweet js-tooltip EdgeButton EdgeButton--primary js-dynamic-tooltip") | Select-Object -First 1
 $tweet.click()
@@ -108,5 +119,5 @@ $applybtn.click()
 
 Start-Sleep(3)
 
-$ie.Quit()
+#$ie.Quit()
 
