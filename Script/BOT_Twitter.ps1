@@ -60,7 +60,7 @@ Content of your tweetssssss
 "@
 $ie = new-object -com "InternetExplorer.Application"
 $ie.navigate("https://twitter.com/login")
-$ie.visible = $true
+$ie.visible = $false
 
 while ($ie.busy) {sleep -milliseconds 50}
 $iex = $ie.Document.DocumentElement.getElementsByTagName("button") | Where-Object {$_.classname -eq 'submit EdgeButton EdgeButton--primary EdgeButtom--medium'}
@@ -125,5 +125,5 @@ $applybtn.click()
 
 Start-Sleep(3)
 
-#$ie.Quit()
+$ie.Quit()
 
