@@ -7,7 +7,9 @@ This is the test version, i did not worked on the security, error exception and 
 
 This is principally to improve my skill in Powershell.
 
+Working on: 
 
+- Clearing Cache and cleaning IE, it happens that the script doesn't end well probably because of IE.
 
 23/11/2018: - Added task scheduler check, if nothing correspond, it create a task that tweet once a day.
             - Checking if the user has admin privilege in case the task need to be created.
